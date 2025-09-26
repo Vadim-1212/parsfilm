@@ -85,7 +85,7 @@ public class FilmMapper {
         film.setCountries(countries);
         film.setGenres(genres);
 
-        // преобразуем строку "age16" → 16
+        // преобразуем строку "age16" → 16, из апи приходит строка
         try {
             String raw = filmDto.getRatingAgeLimits();
             if (raw != null) {

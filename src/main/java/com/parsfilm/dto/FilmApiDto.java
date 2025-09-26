@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+// Класс дто, принимать первичный поиск по фильтру
 public class FilmApiDto {
     private Long kinopoiskId;
     private String nameRu;

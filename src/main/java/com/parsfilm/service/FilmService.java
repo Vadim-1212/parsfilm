@@ -73,9 +73,10 @@ public class FilmService {
         return saved;
     }
 
-
+    // сохраняем каждый фильм (жанры и страны) проверяя нет ли уже его в БД
     @Transactional
     public Film saveFilm(Film film) {
+
         Set<Country> attachedCountries = film.getCountries().stream()
                 .map(c -> countryRep.findByName(c.getName())
                         .orElseGet(() -> {
@@ -102,6 +103,7 @@ public class FilmService {
                 .orElseGet(() -> filmRep.save(film));
     }
 
+    // сохранить поля у фильма в бд если такого нет
     private Film updateFilm(Film target, Film source) {
         target.setNameRu(source.getNameRu());
         target.setNameEn(source.getNameEn());
@@ -140,16 +142,20 @@ public class FilmService {
                 .toList();
     }
 
+    // получить все фильмы с бд по критериям
     public List<FilmDto> findAllByCriteria(FilmSearchCriteria filmSearchCriteria) {
         return buildCriteriaQuery(filmSearchCriteria).getResultList().stream()
                 .map(filmMapper::toDto)
                 .toList();
     }
 
+    // сбор запроса в бд по критериям от юзера
     private TypedQuery<Film> buildCriteriaQuery(FilmSearchCriteria filmSearchCriteria) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
         CriteriaQuery<Film> cq = cb.createQuery(Film.class);
+        // без дублей должно прийти
         cq.distinct(true);
         Root<Film> root = cq.from(Film.class);
         List<Predicate> predicates = new ArrayList<>();
@@ -188,6 +194,7 @@ public class FilmService {
             predicates.add(cb.or(byNameRu, byNameEn, byNameOriginal, byDescription));
         }
 
+        // прибавляем к таблице фильмов и таблицы жанров и стран что бы по их полям делять запросы
         // Фильтрация по жанрам (по имени)
         if (filmSearchCriteria.getGenres() != null && !filmSearchCriteria.getGenres().isEmpty()) {
             Join<Film, Genre> genreJoin = root.join("genres");
@@ -231,6 +238,7 @@ public class FilmService {
 
         int pageSize = 20;
 
+        // разбить на страницы и собрать в список
         for (int fromIndex = 0; fromIndex < sourceFilms.size(); fromIndex += pageSize) {
             int toIndex = Math.min(fromIndex + pageSize, sourceFilms.size());
             List<FilmDto> pageFilms = new ArrayList<>(sourceFilms.subList(fromIndex, toIndex));

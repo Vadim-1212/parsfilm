@@ -49,26 +49,37 @@ public class FilmController {
 
         File zipFile = null;
         try {
-            FilmSearchCriteria normalizedCriteria = criteriaService.normalizeCriteria(criteria);
-            filtersSyncService.syncAll();
 
+            FilmSearchCriteria normalizedCriteria = criteriaService.normalizeCriteria(criteria);
+
+            // получить список все возможных urls
             List<String> urls = kinopoiskApiService.buildUrl(normalizedCriteria);
+
+            // получить список фильмов по фильтру
             List<FilmDto> filmDtos = kinopoiskApiService.getFilmsByUrls(urls);
 
+            // получить список всех деталей для фильмов по id
             List<FilmDto> filmDetailsDtos = kinopoiskApiService.getFilmsByIds(
+
+                    // получить url для запросов по id и вставить в параметры метода
                     kinopoiskApiService.buildUrlForIds(filmDtos)
             );
 
+            // убираем дубликаты фильмов если они попались в запросе.
             List<FilmDto> uniqueFilmDetails = deduplicateByKinopoiskId(filmDetailsDtos);
 
+            // из дто делаем сущность фильм
             List<Film> films = uniqueFilmDetails.stream()
                     .map(filmMapper::toFilm)
                     .toList();
 
+            // сохраняем все фильмы
             filmService.saveAll(films);
 
+            //собираем все из бд по фильтру
             List<FilmDto> filmsFromDatabase = filmService.findAllByCriteria(normalizedCriteria);
 
+            //
             zipFile = filmService.generateReportFiles(filmsFromDatabase);
             if (zipFile == null) {
                 return ResponseEntity.internalServerError().body("Ошибка при создании отчёта");
@@ -87,11 +98,15 @@ public class FilmController {
         }
     }
 
+    // в итоге получаем лист фильмов
     private List<FilmDto> deduplicateByKinopoiskId(List<FilmDto> filmDtos) {
+
+        // пустой список если ничего нет
         if (filmDtos == null || filmDtos.isEmpty()) {
             return List.of();
         }
 
+        // сохраняя порядок вставки (не вспомнил нахрена, но и менять боюсь ))) )
         Map<Long, FilmDto> uniqueFilms = new LinkedHashMap<>();
         for (FilmDto dto : filmDtos) {
             Long kinopoiskId = dto.getKinopoiskId();

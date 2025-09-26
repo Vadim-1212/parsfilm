@@ -2,6 +2,7 @@ package com.parsfilm.dto;
 
 import java.util.List;
 
+// класс принемальщик (дто), для постраничного принятия.
 public class FilmApiResponse {
     private int total;
     private int totalPages;

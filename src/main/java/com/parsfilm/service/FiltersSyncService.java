@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+//Этот класс FiltersSyncService при старте приложения и по вызову метода syncAll() загружает из внешнего API
+// список жанров и стран и сохраняет их в базу, если их там ещё нет.
 
 @Service
 public class FiltersSyncService {
@@ -27,6 +29,7 @@ public class FiltersSyncService {
         this.countryRep = countryRep;
     }
 
+    // загружаем заранее в бд все жанры и страны
     @Bean
     ApplicationRunner syncFiltersOnStartup(FiltersSyncService filtersSyncService) {
         return args -> filtersSyncService.syncAll();
@@ -49,6 +52,7 @@ public class FiltersSyncService {
                 return;
             }
 
+            // создадим новые жанры и страны если их нет в бд
             if (resp.getGenres() != null) {
                 resp.getGenres().forEach(g -> {
                     try {

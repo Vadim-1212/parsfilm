@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
 
+// модель отчета в виде класса для xml
 @JacksonXmlRootElement(localName = "report")
 public class ReportDto {
     @JacksonXmlElementWrapper(localName = "pages")
