@@ -4,7 +4,9 @@ package com.parsfilm.dto;
 import java.util.List;
 
 public class FiltersResponse {
+
     private List<GenreItem> genres;
+
     private List<CountryItem> countries;
 
     public List<GenreItem> getGenres() { return genres; }
@@ -19,6 +21,7 @@ public class FiltersResponse {
 
         public Integer getId() { return id; }
         public void setId(Integer id) { this.id = id; }
+
         public String getGenre() { return genre; }
         public void setGenre(String genre) { this.genre = genre; }
     }

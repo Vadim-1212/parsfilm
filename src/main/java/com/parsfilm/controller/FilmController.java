@@ -23,20 +23,21 @@ public class FilmController {
     private final KinopoiskApiService kinopoiskApiService;
     private final EmailService emailService;
     private final FilmSearchCriteriaService criteriaService;
-    private final FiltersSyncService filtersSyncService;
+    private final FiltersUpdateService filtersUpdateService;
     private final FilmMapper filmMapper;
 
     public FilmController(FilmService filmService,
                           KinopoiskApiService kinopoiskApiService,
                           EmailService emailService,
                           FilmSearchCriteriaService criteriaService,
-                          FiltersSyncService filtersSyncService,
-                          FilmMapper filmMapper) {
+                          FilmMapper filmMapper,
+                          FiltersUpdateService filtersUpdateService
+                          ) {
         this.filmService = filmService;
         this.kinopoiskApiService = kinopoiskApiService;
         this.emailService = emailService;
         this.criteriaService = criteriaService;
-        this.filtersSyncService = filtersSyncService;
+        this.filtersUpdateService = filtersUpdateService;
         this.filmMapper = filmMapper;
     }
 

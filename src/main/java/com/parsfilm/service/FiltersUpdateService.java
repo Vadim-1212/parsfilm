@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 // список жанров и стран и сохраняет их в базу, если их там ещё нет.
 
 @Service
-public class FiltersSyncService {
+public class FiltersUpdateService {
 
 
     private final WebClient webClient;
@@ -23,7 +23,7 @@ public class FiltersSyncService {
     private final CountryRep countryRep;
 
 
-    public FiltersSyncService(WebClient webClient, GenreRep genreRep, CountryRep countryRep) {
+    public FiltersUpdateService(WebClient webClient, GenreRep genreRep, CountryRep countryRep) {
         this.webClient = webClient;
         this.genreRep = genreRep;
         this.countryRep = countryRep;
@@ -31,20 +31,21 @@ public class FiltersSyncService {
 
     // загружаем заранее в бд все жанры и страны
     @Bean
-    ApplicationRunner syncFiltersOnStartup(FiltersSyncService filtersSyncService) {
-        return args -> filtersSyncService.syncAll();
+    ApplicationRunner syncFiltersOnStartup(FiltersUpdateService filtersUpdateService) {
+        return args -> filtersUpdateService.syncAll();
     }
 
     @Transactional
     public void syncAll() {
         try {
+            //
             FiltersResponse resp = webClient.get().uri("/filters")
                     .retrieve()
                     .bodyToMono(FiltersResponse.class)
                     .doOnError(ex -> {
                         System.err.println("Ошибка при запросе фильтров: " + ex.getMessage());
                     })
-                    .onErrorResume(ex -> Mono.empty()) // <-- вместо null
+                    .onErrorResume(ex -> Mono.empty())
                     .block();
 
             if (resp == null) {

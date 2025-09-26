@@ -24,14 +24,11 @@ public class KinopoiskApiService {
     private String baseUrl;
 
     private RequestCounterService requestCounterService;
-    private FilmSearchCriteriaService filmSearchCriteriaService;
 
     public KinopoiskApiService(WebClient webClient,
-                               RequestCounterService requestCounterService,
-                               FilmSearchCriteriaService filmSearchCriteriaService) {
+                               RequestCounterService requestCounterService) {
         this.webClient = webClient;
         this.requestCounterService = requestCounterService;
-        this.filmSearchCriteriaService = filmSearchCriteriaService;
     }
 
     //  какие критерии передаются - сформировать все возможные url для запросов
@@ -169,6 +166,7 @@ public class KinopoiskApiService {
     // Получить фильмы по id
     public List<FilmDto> getFilmsByIds(List<String> idUrls) {
         List<FilmDto> filmDtos = new ArrayList<>();
+
         // пройтись по циклу urlов и получить фильмы
         for (String url : idUrls) {
             FilmApiDto apiDto = webClient.get()
@@ -176,10 +174,11 @@ public class KinopoiskApiService {
                     .retrieve()
                     .bodyToMono(FilmApiDto.class)
                     .block();
-            //добавить фильмы в список
+            //добавить фильм в список
             if (apiDto != null) {
                 filmDtos.add(apiDto.toFilmDto());
             }
+            break; // временный огранечитель что бы не израсходовать лимиты
         }
         return filmDtos;
     }
