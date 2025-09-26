@@ -4,15 +4,15 @@ import com.parsfilm.dto.FilmApiDto;
 import com.parsfilm.dto.FilmApiResponse;
 import com.parsfilm.dto.FilmDto;
 import com.parsfilm.dto.FilmSearchCriteria;
-import com.parsfilm.entity.Film;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class KinopoiskApiService {
 
@@ -169,11 +169,15 @@ public class KinopoiskApiService {
 
         // пройтись по циклу urlов и получить фильмы
         for (String url : idUrls) {
+
+            log.info("Отправляю запрос в API {}", url);
             FilmApiDto apiDto = webClient.get()
                     .uri(url)
                     .retrieve()
                     .bodyToMono(FilmApiDto.class)
                     .block();
+            log.debug("Ответ от API {}: {}",url, apiDto);
+
             //добавить фильм в список
             if (apiDto != null) {
                 filmDtos.add(apiDto.toFilmDto());
