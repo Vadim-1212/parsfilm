@@ -116,25 +116,6 @@ public class FilmController {
         return new ArrayList<>(uniqueFilms.values());
     }
 
-    private List<FilmDto> combineUniqueByKinopoiskId(List<FilmDto>... filmSources) {
-        Map<Long, FilmDto> uniqueFilms = new LinkedHashMap<>();
-
-        if (filmSources != null) {
-            for (List<FilmDto> source : filmSources) {
-                if (source == null) {
-                    continue;
-                }
-                for (FilmDto dto : source) {
-                    if (dto == null) {
-                        continue;
-                    }
-                    uniqueFilms.putIfAbsent(dto.getKinopoiskId(), dto);
-                }
-            }
-        }
-
-        return new ArrayList<>(uniqueFilms.values());
-    }
 }
 
 

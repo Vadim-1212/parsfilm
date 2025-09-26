@@ -59,11 +59,6 @@ public class FilmService {
         this.genreRep = genreRepository;
     }
 
-
-    public List<Film> findAll() {
-        return filmRep.findAll();
-    }
-
     @Transactional
     public List<Film> saveAll(List<Film> films) {
         List<Film> saved = new ArrayList<>();
@@ -123,23 +118,6 @@ public class FilmService {
         target.getGenres().addAll(source.getGenres());
 
         return filmRep.save(target);
-    }
-
-
-
-
-
-
-
-    //запроса в бд по фильтру от юзера и вернуть 20 фильмов (то есть одну страницу)
-    public List<FilmDto> findByCriteria(FilmSearchCriteria filmSearchCriteria, Integer pageNumber, Integer pageSize) {
-        TypedQuery<Film> query = buildCriteriaQuery(filmSearchCriteria);
-        query.setFirstResult(pageNumber * pageSize);
-        query.setMaxResults(pageSize);
-
-        return query.getResultList().stream()
-                .map(filmMapper::toDto)
-                .toList();
     }
 
     // получить все фильмы с бд по критериям
@@ -222,11 +200,6 @@ public class FilmService {
         }
 
         return entityManager.createQuery(cq);
-    }
-
-    public File generateReportFilesForCriteria(FilmSearchCriteria filmSearchCriteria) {
-        List<FilmDto> films = findAllByCriteria(filmSearchCriteria);
-        return generateReportFiles(films);
     }
 
     //конвертировать в xml/csv и засунуть в zip
@@ -320,14 +293,7 @@ public class FilmService {
         zos.closeEntry();
     }
 
-    // FilmService
-    @Transactional
-    public List<Film> saveAllDtos(List<FilmDto> filmDtos) {
-        return filmDtos.stream()
-                .map(filmMapper::toFilm)   // <-- вот тут твой метод
-                .map(this::saveFilm)
-                .toList();
-    }
+
 
 
 

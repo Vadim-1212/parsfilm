@@ -166,7 +166,6 @@ public class KinopoiskApiService {
         return filmDtos;
     }
 
-
     // Получить фильмы по id
     public List<FilmDto> getFilmsByIds(List<String> idUrls) {
         List<FilmDto> filmDtos = new ArrayList<>();

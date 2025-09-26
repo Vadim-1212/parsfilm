@@ -1,12 +1,8 @@
 package com.parsfilm.service;
 
 import com.parsfilm.dto.FilmSearchCriteria;
-import com.parsfilm.helperClassAndMethods.helperEnums.FilmType;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Service
 public class FilmSearchCriteriaService {
