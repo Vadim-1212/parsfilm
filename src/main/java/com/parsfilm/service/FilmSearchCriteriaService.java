@@ -4,33 +4,26 @@ import com.parsfilm.dto.FilmSearchCriteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class FilmSearchCriteriaService {
 
-    // Null better than empty
     @Transactional(readOnly = true)
     public FilmSearchCriteria normalizeCriteria(FilmSearchCriteria c) {
-
-        // убираем null и пустые строки
-        if (c.getGenres() != null) {
-            c.setGenres(
-                    c.getGenres().stream()
-                            .filter(g -> g != null && !g.trim().isEmpty())
-                            .map(String::trim)
-                            .toList()
-            );
-        }
-        if (c.getCountries() != null) {
-            c.setCountries(
-                    c.getCountries().stream()
-                            .filter(ct -> ct != null && !ct.trim().isEmpty())
-                            .map(String::trim)
-                            .toList()
-            );
-        }
+        c.setCountries(cleanList(c.getCountries()));
+        c.setGenres(cleanList(c.getGenres()));
         return c;
     }
 
+    private List<String> cleanList(List<String> list) {
+        if (list == null) return null;
+            return list.stream()
+                    .filter(x -> x != null)
+                    .map(String::trim)
+                    .filter(x -> !x.isEmpty())
+                    .toList();
+    }
 }
 
 

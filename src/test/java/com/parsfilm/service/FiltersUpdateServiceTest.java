@@ -12,10 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import org.springframework.web.reactive.function.client.WebClient;
-
 import java.util.List;
+
 @ExtendWith(MockitoExtension.class)
 class FiltersUpdateServiceTest {
 
