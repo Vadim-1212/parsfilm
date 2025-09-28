@@ -27,7 +27,7 @@ public class Genre {
     public Genre() {
     }
 
-    public Genre(Set<Film> films, String name, Integer idApi) {
+    public Genre(String name, Set<Film> films, Integer idApi) {
         this.films = films;
         this.name = name;
         this.idApi = idApi;

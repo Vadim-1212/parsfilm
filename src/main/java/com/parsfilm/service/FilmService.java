@@ -52,7 +52,10 @@ public class FilmService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public FilmService(FilmRep filmRep, FilmMapper filmMapper,  CountryRep countryRepository, GenreRep genreRepository) {
+    public FilmService(FilmRep filmRep, FilmMapper filmMapper,
+                       CountryRep countryRepository,
+                       GenreRep genreRepository) {
+
         this.filmRep = filmRep;
         this.filmMapper = filmMapper;
         this.countryRep = countryRepository;
@@ -69,10 +72,9 @@ public class FilmService {
     }
 
     // сохраняем каждый фильм (жанры и страны) проверяя нет ли уже его в БД
-    @Transactional
-    public Film saveFilm(Film film) {
+    private Film saveFilm(Film newfilm) {
 
-        Set<Country> attachedCountries = film.getCountries().stream()
+        Set<Country> attachedCountries = newfilm.getCountries().stream()
                 .map(c -> countryRep.findByName(c.getName())
                         .orElseGet(() -> {
                             Country nc = new Country();
@@ -81,7 +83,7 @@ public class FilmService {
                         }))
                 .collect(Collectors.toSet());
 
-        Set<Genre> attachedGenres = film.getGenres().stream()
+        Set<Genre> attachedGenres = newfilm.getGenres().stream()
                 .map(g -> genreRep.findByName(g.getName())
                         .orElseGet(() -> {
                             Genre ng = new Genre();
@@ -90,17 +92,19 @@ public class FilmService {
                         }))
                 .collect(Collectors.toSet());
 
-        film.setCountries(attachedCountries);
-        film.setGenres(attachedGenres);
+        newfilm.setCountries(attachedCountries);
+        newfilm.setGenres(attachedGenres);
 
-        return filmRep.findByKinopoiskId(film.getKinopoiskId())
-                .map(existing -> updateFilm(existing, film))
-                .orElseGet(() -> filmRep.save(film));
+        return filmRep.findByKinopoiskId(newfilm.getKinopoiskId())
+                .map(existing -> updateFilm(existing, newfilm))
+                .orElseGet(() -> filmRep.save(newfilm));
     }
 
     // сохранить поля у фильма в бд если такого нет
     private Film updateFilm(Film target, Film source) {
         target.setNameRu(source.getNameRu());
+
+
         target.setNameEn(source.getNameEn());
         target.setNameOriginal(source.getNameOriginal());
         target.setPosterUrl(source.getPosterUrl());
