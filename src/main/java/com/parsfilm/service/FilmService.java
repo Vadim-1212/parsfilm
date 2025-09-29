@@ -141,6 +141,12 @@ public class FilmService {
         // без дублей должно прийти
         cq.distinct(true);
         Root<Film> root = cq.from(Film.class);
+
+
+        // нужно загружать все иначе выпадает ошибка когда мапим в дто
+        Fetch<Film, Country> countryFetch = root.fetch("countries", JoinType.LEFT);
+        Fetch<Film, Genre> genreFetch = root.fetch("genres", JoinType.LEFT);
+
         List<Predicate> predicates = new ArrayList<>();
 
         // Год выпуска
@@ -178,13 +184,13 @@ public class FilmService {
         }
 
         // прибавляем к таблице фильмов и таблицы жанров и стран что бы по их полям делять запросы
-        // Фильтрация по жанрам (по имени)
+        // Фильтрация по жанрам - используем Join ОТДЕЛЬНО от Fetch
         if (filmSearchCriteria.getGenres() != null && !filmSearchCriteria.getGenres().isEmpty()) {
             Join<Film, Genre> genreJoin = root.join("genres");
             predicates.add(genreJoin.get("name").in(filmSearchCriteria.getGenres()));
         }
 
-        // Фильтрация по странам (по имени)
+        // Фильтрация по странам
         if (filmSearchCriteria.getCountries() != null && !filmSearchCriteria.getCountries().isEmpty()) {
             Join<Film, Country> countryJoin = root.join("countries");
             predicates.add(countryJoin.get("name").in(filmSearchCriteria.getCountries()));
