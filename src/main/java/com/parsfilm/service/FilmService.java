@@ -43,9 +43,7 @@ public class FilmService {
 
     private FilmRep filmRep;
     private FilmMapper filmMapper;
-
     private CountryRep countryRep;
-
     private GenreRep genreRep;
 
 
@@ -62,6 +60,8 @@ public class FilmService {
         this.genreRep = genreRepository;
     }
 
+
+
     @Transactional
     public List<Film> saveAll(List<Film> films) {
         List<Film> saved = new ArrayList<>();
@@ -70,7 +70,6 @@ public class FilmService {
         }
         return saved;
     }
-
     // сохраняем каждый фильм (жанры и страны) проверяя нет ли уже его в БД
     private Film saveFilm(Film newfilm) {
 
@@ -99,7 +98,6 @@ public class FilmService {
                 .map(existing -> updateFilm(existing, newfilm))
                 .orElseGet(() -> filmRep.save(newfilm));
     }
-
     // сохранить поля у фильма в бд если такого нет
     private Film updateFilm(Film target, Film source) {
         target.setNameRu(source.getNameRu());
@@ -123,6 +121,9 @@ public class FilmService {
 
         return filmRep.save(target);
     }
+
+
+
 
     // получить все фильмы с бд по критериям
     public List<FilmDto> findAllByCriteria(FilmSearchCriteria filmSearchCriteria) {
@@ -205,6 +206,7 @@ public class FilmService {
 
         return entityManager.createQuery(cq);
     }
+
 
     //конвертировать в xml/csv и засунуть в zip
     public File generateReportFiles(List<FilmDto> films) {

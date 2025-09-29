@@ -23,7 +23,6 @@ public class FilmController {
     private final KinopoiskApiService kinopoiskApiService;
     private final EmailService emailService;
     private final FilmSearchCriteriaService criteriaService;
-    private final FiltersUpdateService filtersUpdateService;
     private final FilmMapper filmMapper;
 
     public FilmController(FilmService filmService,
@@ -37,7 +36,6 @@ public class FilmController {
         this.kinopoiskApiService = kinopoiskApiService;
         this.emailService = emailService;
         this.criteriaService = criteriaService;
-        this.filtersUpdateService = filtersUpdateService;
         this.filmMapper = filmMapper;
     }
 
@@ -80,7 +78,7 @@ public class FilmController {
             //собираем все из бд по фильтру
             List<FilmDto> filmsFromDatabase = filmService.findAllByCriteria(normalizedCriteria);
 
-            //
+            //создаем файл для отправки
             zipFile = filmService.generateReportFiles(filmsFromDatabase);
             if (zipFile == null) {
                 return ResponseEntity.internalServerError().body("Ошибка при создании отчёта");

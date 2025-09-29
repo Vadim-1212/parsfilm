@@ -21,6 +21,8 @@ public class Film {
     private String nameOriginal;
     private String posterUrl;
     private String webUrl;
+
+    @Column(name = "release_year")
     private Integer year;
     private String description;
     private Double ratingKinopoisk; //"ratingKinopoisk": 7.9,

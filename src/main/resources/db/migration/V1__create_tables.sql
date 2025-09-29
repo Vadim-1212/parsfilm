@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS films
     name_original     VARCHAR(255),
     poster_url        VARCHAR(500),
     web_url           VARCHAR(500),
-    year              INT,
+    release_year      INT,
     description       TEXT,
     film_types        VARCHAR(50),
     rating_age_limits INT,

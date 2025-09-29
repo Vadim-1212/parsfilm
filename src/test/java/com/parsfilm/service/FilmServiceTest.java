@@ -1,5 +1,6 @@
 package com.parsfilm.service;
 
+import com.parsfilm.dto.FilmMapper;
 import com.parsfilm.entity.Film;
 import com.parsfilm.entity.helpEntity.Country;
 import com.parsfilm.entity.helpEntity.Genre;
@@ -30,12 +31,12 @@ public class FilmServiceTest {
 
     @Mock
     private FilmRep filmRep;
-
     @Mock
     private CountryRep countryRep;
-
     @Mock
     private GenreRep genreRep;
+    @Mock
+    private FilmMapper filmMapper;
 
     @Test
     public void saveAllFilmTest() {
@@ -104,4 +105,5 @@ public class FilmServiceTest {
         assertEquals(filmNew.getRatingKinopoisk(), savedFilm.getRatingKinopoisk());
 
     }
+
 }
