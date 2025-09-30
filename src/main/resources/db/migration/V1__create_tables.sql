@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS films
     description       TEXT,
     film_types        VARCHAR(50),
     rating_age_limits INT,
-    rating_kinopoisk  INT
+    rating_kinopoisk  DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS genres

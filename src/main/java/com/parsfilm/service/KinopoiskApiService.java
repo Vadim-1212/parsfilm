@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -35,41 +36,30 @@ public class KinopoiskApiService {
     public List<String> buildUrl(FilmSearchCriteria criteria) {
         List<String> allUrls = new ArrayList<>();
 
-        // Если есть и страны, и жанры → вложенные циклы что бы собрать все возможные запросы.
-        if (!criteria.getCountryIds().isEmpty() && !criteria.getGenreIds().isEmpty()) {
-            for (Integer countryId : criteria.getCountryIds()) {
-                for (Integer genreId : criteria.getGenreIds()) {
-                    StringBuilder sb = new StringBuilder(baseUrl + "?");
+        // ИСПРАВЛЕНО: используем Collections.singletonList вместо List.of
+        List<Integer> countries = criteria.getCountryIds().isEmpty()
+                ? Collections.singletonList(null)  // ← ВОТ ТУТ
+                : criteria.getCountryIds();
+
+        List<Integer> genres = criteria.getGenreIds().isEmpty()
+                ? Collections.singletonList(null)  // ← И ТУТ
+                : criteria.getGenreIds();
+
+        // Декартово произведение
+        for (Integer countryId : countries) {
+            for (Integer genreId : genres) {
+                StringBuilder sb = new StringBuilder(baseUrl + "?");
+
+                if (countryId != null) {
                     sb.append("countries=").append(countryId).append("&");
-                    sb.append("genres=").append(genreId).append("&");
-                    appendCommonParams(sb, criteria);
-                    allUrls.add(sb.toString());
                 }
-            }
-        }
-        // Только страны
-        else if (!criteria.getCountryIds().isEmpty()) {
-            for (Integer countryId : criteria.getCountryIds()) {
-                StringBuilder sb = new StringBuilder(baseUrl + "?");
-                sb.append("countries=").append(countryId).append("&");
+                if (genreId != null) {
+                    sb.append("genres=").append(genreId).append("&");
+                }
+
                 appendCommonParams(sb, criteria);
                 allUrls.add(sb.toString());
             }
-        }
-        // Только жанры
-        else if (!criteria.getGenreIds().isEmpty()) {
-            for (Integer genreId : criteria.getGenreIds()) {
-                StringBuilder sb = new StringBuilder(baseUrl + "?");
-                sb.append("genres=").append(genreId).append("&");
-                appendCommonParams(sb, criteria);
-                allUrls.add(sb.toString());
-            }
-        }
-        // Ни жанров, ни стран
-        else {
-            StringBuilder sb = new StringBuilder(baseUrl + "?");
-            appendCommonParams(sb, criteria);
-            allUrls.add(sb.toString());
         }
 
         for (String url : allUrls) {
@@ -106,37 +96,41 @@ public class KinopoiskApiService {
     }
 
     // Получить фильмы по url-ам и не привысить кол-во фильмов в половину кол-ва запросов.
-    // Потому что за один запрос по фильтру приходит 20 фильмов, но потом каждый фильм это один запрос. А в апи лимиты
     public List<FilmDto> getFilmsByUrls(List<String> urls) {
         List<FilmDto> filmDtos = new ArrayList<>();
-
-        // Пройтись по циклу, так как нужно пройтись по всем страницам, иначе приходят только 20 фильмов
         int filmsCollected = 0;
-        int filmLimit = RequestCounterService.getDailyLimitRequests() * 20;
+
+        // Простая формула: половина запросов на сбор, половина на детали
+        int remainingRequests = requestCounterService.getRemainingRequests();
+        int requestsForFiltering = Math.max(1, remainingRequests / 2);
+        int maxFilms = requestsForFiltering * 20;
+
+        System.out.println(">>> Доступно запросов: " + remainingRequests);
+        System.out.println(">>> Используем для фильтрации: " + requestsForFiltering);
+        System.out.println(">>> Макс. фильмов для сбора: " + maxFilms);
+
         for (String url : urls) {
             int page = 1;
             int totalPages = 1;
 
-            // с начало сделать, и узнать сколько страниц будет
             do {
                 try {
-                    // если кол-во запрос не ноль или меньше или фильмов собрано не больше чем лимиты по запросам
-                    if (requestCounterService.getRemainingRequests() <= 0 || filmsCollected >= filmLimit) {
+                    if (filmsCollected >= maxFilms) {
+                        System.out.println(">>> СТОП: Собрано " + filmsCollected + " фильмов, лимит " + maxFilms);
                         return filmDtos;
                     }
 
-                    // сбор первой страницы + 20 фильмов
                     String pageUrl = url + "&page=" + page;
+                    System.out.println(">>> Отправляю запрос: " + pageUrl);
+
                     FilmApiResponse filmApiResponse = webClient.get()
                             .uri(pageUrl)
                             .retrieve()
                             .bodyToMono(FilmApiResponse.class)
                             .block();
 
-                    //счетчик что бы не превысить лимиты
-                    requestCounterService.updateAndGetRemainingRequests();
+                    System.out.println(">>> Получен ответ: " + (filmApiResponse == null ? "NULL" : "OK, items=" + (filmApiResponse.getItems() == null ? "null" : filmApiResponse.getItems().size())));
 
-                    // если что то получили то вытащить фильмы из страницы в общий список
                     if (filmApiResponse != null && filmApiResponse.getItems() != null) {
                         List<FilmDto> convertedFilms = filmApiResponse.getItems().stream()
                                 .map(FilmApiDto::toFilmDto)
@@ -148,8 +142,6 @@ public class KinopoiskApiService {
                     }
 
                     page++;
-
-                    // замедление запросов на 5 сек (лимиты на запросы по  фильтрам)
                     Thread.sleep(200);
 
                 } catch (Exception ex) {
@@ -157,35 +149,41 @@ public class KinopoiskApiService {
                     break;
                 }
 
-                // получаем страницы пока есть
             } while (page <= totalPages);
         }
         return filmDtos;
     }
-
     // Получить фильмы по id
     public List<FilmDto> getFilmsByIds(List<String> idUrls) {
         List<FilmDto> filmDtos = new ArrayList<>();
 
-        // пройтись по циклу urlов и получить фильмы
         for (String url : idUrls) {
+            try {
+                log.info("Отправляю запрос в API {}", url);
 
-            log.info("Отправляю запрос в API {}", url);
-            FilmApiDto apiDto = webClient.get()
-                    .uri(url)
-                    .retrieve()
-                    .bodyToMono(FilmApiDto.class)
-                    .block();
-            log.debug("Ответ от API {}: {}",url, apiDto);
+                FilmApiDto apiDto = webClient.get()
+                        .uri(url)
+                        .retrieve()
+                        .bodyToMono(FilmApiDto.class)
+                        .block();
 
-            //добавить фильм в список
-            if (apiDto != null) {
-                filmDtos.add(apiDto.toFilmDto());
+                log.debug("Ответ от API {}: {}", url, apiDto);
+
+                if (apiDto != null) {
+                    filmDtos.add(apiDto.toFilmDto());
+                } else {
+                    // Запрос был заблокирован interceptor'ом
+                    log.warn("Запрос {} вернул null - возможно лимит исчерпан", url);
+                }
+
+            } catch (Exception ex) {
+                log.error("Ошибка при запросе {}: {}", url, ex.getMessage());
+                // Не прерываем цикл - продолжаем с остальными
             }
-            break; // временный огранечитель что бы не израсходовать лимиты
         }
+
+        System.out.println(">>> getFilmsByIds: собрано " + filmDtos.size() + " из " + idUrls.size() + " запросов");
         return filmDtos;
     }
-
 
 }

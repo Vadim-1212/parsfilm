@@ -23,28 +23,17 @@ public class AppConfig {
     private String token;
 
     @Bean
-    public WebClient webClient() {
+    public WebClient webClient(RateLimitInterceptor rateLimitInterceptor) {  // ← Добавили параметр
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("X-API-KEY", token)
+                .filter(rateLimitInterceptor)  // ← Добавили фильтр
                 .clientConnector(new ReactorClientHttpConnector(
                         HttpClient.create()
                                 .resolver(DefaultAddressResolverGroup.INSTANCE)
                                 .responseTimeout(Duration.ofSeconds(60))
                                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
                 ))
-                .filter((request, next) -> next.exchange(request)
-                        .onErrorResume(WebClientResponseException.class, ex -> {
-                            // Логируем статус + тело ошибки
-                            System.err.println("WebClient error: " + ex.getStatusCode() + " - " + ex.getResponseBodyAsString());
-                            return Mono.empty(); // не кидаем исключение дальше
-                        })
-                        .onErrorResume(Exception.class, ex -> {
-                            // Логируем прочие ошибки (например timeout)
-                            System.err.println("Unexpected error in WebClient: " + ex.getMessage());
-                            return Mono.empty();
-                        })
-                )
                 .build();
     }
 

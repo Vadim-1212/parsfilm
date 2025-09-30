@@ -237,4 +237,6 @@ class FilmServiceIntegrationTest {
         assertEquals(1, result.size());
         assertEquals("Матрица", result.get(0).getNameRu());
     }
+
+
 }
