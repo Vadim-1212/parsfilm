@@ -1,6 +1,5 @@
 package com.parsfilm.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.parsfilm.helperClassAndMethods.helperEnums.FilmType;
 
 import java.util.ArrayList;

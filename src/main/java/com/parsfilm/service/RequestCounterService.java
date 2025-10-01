@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class RequestCounterService {
 
     private RequestCounterRep repository;
-    private static int DAILY_LIMIT_REQUESTS = 50; // дневной лимит 500, но он уходит за один запрос так как фильмов много, поэтому временно ставим поменьше фильмов.
+    private static int DAILY_LIMIT_REQUESTS = 500; // дневной лимит 500, но он уходит за один запрос так как фильмов много, поэтому временно ставим поменьше фильмов.
 
 
     public RequestCounterService(RequestCounterRep repository) {

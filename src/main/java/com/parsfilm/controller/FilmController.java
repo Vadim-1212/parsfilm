@@ -1,18 +1,13 @@
 package com.parsfilm.controller;
 
-import com.parsfilm.dto.FilmDto;
-import com.parsfilm.dto.FilmMapper;
+
 import com.parsfilm.dto.FilmSearchCriteria;
-import com.parsfilm.entity.Film;
 import com.parsfilm.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
 
 
 @RestController

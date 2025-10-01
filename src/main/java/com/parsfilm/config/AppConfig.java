@@ -27,7 +27,8 @@ public class AppConfig {
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("X-API-KEY", token)
-                .filter(rateLimitInterceptor)  // ← Добавили фильтр
+                .defaultHeader("Accept-Charset", "UTF-8")
+                .filter(rateLimitInterceptor)
                 .clientConnector(new ReactorClientHttpConnector(
                         HttpClient.create()
                                 .resolver(DefaultAddressResolverGroup.INSTANCE)

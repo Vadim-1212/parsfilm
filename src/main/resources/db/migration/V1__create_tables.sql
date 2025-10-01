@@ -17,14 +17,14 @@ CREATE TABLE IF NOT EXISTS films
 CREATE TABLE IF NOT EXISTS genres
 (
     id         BIGSERIAL PRIMARY KEY,
-    genre_name VARCHAR(255) NOT NULL,
+    genre_name VARCHAR(255) NOT NULL UNIQUE,
     id_api     INT
 );
 
 CREATE TABLE IF NOT EXISTS countries
 (
     id           BIGSERIAL PRIMARY KEY,
-    country_name VARCHAR(255) NOT NULL,
+    country_name VARCHAR(255) NOT NULL UNIQUE,
     id_api       INT
 );
 

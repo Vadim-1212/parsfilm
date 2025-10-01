@@ -88,9 +88,10 @@ public class KinopoiskApiService {
                 .map(f -> baseUrl + "/" + f.getKinopoiskId())
                 .toList();
 
-        for (String url : allUrls) {
-            System.out.println("Вот такие url собраны для вторичного поиска: " + url);
+        if (allUrls.size() > 50) {
+            allUrls = allUrls.subList(0, 50);
         }
+        System.out.println("Вот столько url собраны для первичного поиска: " + allUrls.size());
 
         return allUrls;
     }
@@ -100,10 +101,10 @@ public class KinopoiskApiService {
         List<FilmDto> filmDtos = new ArrayList<>();
         int filmsCollected = 0;
 
-        // Простая формула: половина запросов на сбор, половина на детали
+        //  половина запросов на сбор, половина на детали
         int remainingRequests = requestCounterService.getRemainingRequests();
         int requestsForFiltering = Math.max(1, remainingRequests / 2);
-        int maxFilms = requestsForFiltering * 20;
+        int maxFilms = requestsForFiltering;
 
         System.out.println(">>> Доступно запросов: " + remainingRequests);
         System.out.println(">>> Используем для фильтрации: " + requestsForFiltering);
@@ -153,9 +154,12 @@ public class KinopoiskApiService {
         }
         return filmDtos;
     }
+
     // Получить фильмы по id
     public List<FilmDto> getFilmsByIds(List<String> idUrls) {
         List<FilmDto> filmDtos = new ArrayList<>();
+
+        System.out.println("Вот столько idUrls собранно : " + idUrls.size());
 
         for (String url : idUrls) {
             try {
