@@ -25,6 +25,7 @@ public class Film {
     @Column(name = "release_year")
     private Integer year;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Double ratingKinopoisk; //"ratingKinopoisk": 7.9,
 

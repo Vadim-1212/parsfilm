@@ -54,7 +54,7 @@ public class FilmSchedulerService {
     }
 
     // mvn spring-boot:run
-    @Scheduled(cron = "0 30 11 * * ?", zone = "Asia/Yekaterinburg")
+    @Scheduled(cron = "0 40 15 * * ?")
     public void runScheduler() {
         DayOfWeek today = LocalDate.now().getDayOfWeek();
         Integer genreId = getGenreIdForDay(today);
